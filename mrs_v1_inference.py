@@ -62,21 +62,51 @@ class GDPSoluble():
         return {"results": results.tolist()}
 
 
+@serve.deployment
+class KrasG12D():
+    def __init__(self) -> None:
+        cfg = OmegaConf.load(os.path.join(os.path.dirname(__file__), "config.yaml"))
+        self.predictor = Predictor(cfg, model_path=os.path.join(os.path.dirname(__file__), cfg.checkpoints.kras_g12d.model_path ))
+    
+    async def predict(self, instances: Dict) -> Dict:
 
-@serve.deployment(route_prefix="/mrs/eme/v1/predict")
-class EmeGraph():
+        results = self.predictor.predict(instances)
+
+        return {"results": results.tolist()}
+
+
+@serve.deployment
+class KrasG12V():
+    def __init__(self) -> None:
+        cfg = OmegaConf.load(os.path.join(os.path.dirname(__file__), "config.yaml"))
+        self.predictor = Predictor(cfg, model_path=os.path.join(os.path.dirname(__file__), cfg.checkpoints.kras_g12v.model_path ))
+    
+    async def predict(self, instances: Dict) -> Dict:
+    
+        results = self.predictor.predict(instances)
+
+        return {"results": results.tolist()}
+
+
+
+@serve.deployment(route_prefix="/mrs/v1/predict")
+class MrsV1Graph():
     def __init__(self, 
         gtp_immobilized_model: RayServeDeploymentHandle,
         gdp_immobilized_model: RayServeDeploymentHandle,
         gtp_soluble_model: RayServeDeploymentHandle,
-        gdp_soluble_model: RayServeDeploymentHandle
+        gdp_soluble_model: RayServeDeploymentHandle,
+        kras_g12v_model: RayServeDeploymentHandle,
+        kras_g12d_model: RayServeDeploymentHandle
     ) -> None:
 
         self.directory = {
             "gtp_immobilized_model": gtp_immobilized_model,
             "gdp_immobilized_model": gdp_immobilized_model,
             "gtp_soluble_model": gtp_soluble_model,
-            "gdp_soluble_model": gdp_soluble_model
+            "gdp_soluble_model": gdp_soluble_model,
+            "kras_g12v_model": kras_g12v_model,
+            "kras_g12d_model": kras_g12d_model
         }
 
         
@@ -104,8 +134,11 @@ gtp_immobilized_model = GTPImmobilized.bind()
 gdp_immobilized_model = GDPImmobilized.bind()
 gtp_soluble_model = GTPSoluble.bind()
 gdp_soluble_model  = GDPSoluble.bind()
+kras_g12d_model = KrasG12D.bind()
+kras_g12v_model  = KrasG12V.bind()
 
-model = EmeGraph.bind(gtp_immobilized_model, gdp_immobilized_model, gtp_soluble_model, gdp_soluble_model)
+
+model = MrsV1Graph.bind(gtp_immobilized_model, gdp_immobilized_model, gtp_soluble_model, gdp_soluble_model, kras_g12v_model, kras_g12d_model)
     
 
 

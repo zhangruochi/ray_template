@@ -12,7 +12,7 @@ app = FastAPI()
 
 
 @serve.deployment
-class PeppiNatEpoch7():
+class NaturalPeppiNatEpoch7():
     def __init__(self) -> None:
         cfg = OmegaConf.load(os.path.join(os.path.dirname(__file__), "config.yaml"))
         self.predictor = Predictor(cfg, model_path=os.path.join(os.path.dirname(__file__), cfg.checkpoints.epoch_7.model_path ))
@@ -25,7 +25,7 @@ class PeppiNatEpoch7():
 
 
 @serve.deployment
-class PeppiNatEpoch20():
+class NaturalPeppiNatEpoch20():
     def __init__(self) -> None:
         cfg = OmegaConf.load(os.path.join(os.path.dirname(__file__), "config.yaml"))
         self.predictor = Predictor(cfg, model_path=os.path.join(os.path.dirname(__file__), cfg.checkpoints.epoch_20.model_path ))
@@ -37,7 +37,7 @@ class PeppiNatEpoch20():
         return {"results": results.tolist()}
 
 
-@serve.deployment(route_prefix="/peppi/natural/v1/predict")
+@serve.deployment(route_prefix="/peppi/v1/predict")
 class PepPIGraph():
     def __init__(self, 
         peppi_nat_epoch7_model: RayServeDeploymentHandle,
@@ -69,7 +69,7 @@ class PepPIGraph():
         return results
 
 
-peppi_nat_epoch7_model = PeppiNatEpoch7.bind()
-peppi_nat_epoch20_model = PeppiNatEpoch20.bind()
+peppi_nat_epoch7_model = NaturalPeppiNatEpoch7.bind()
+peppi_nat_epoch20_model = NaturalPeppiNatEpoch20.bind()
 
 model = PepPIGraph.bind(peppi_nat_epoch7_model, peppi_nat_epoch20_model)
