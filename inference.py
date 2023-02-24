@@ -6,6 +6,7 @@ from starlette.requests import Request
 from typing import Dict
 import os
 from ray.serve.handle import RayServeDeploymentHandle
+import ray
 
 app = FastAPI()
 
@@ -89,9 +90,10 @@ class EmeGraph():
         instances = data["instances"]
         model_name = data["model_name"]
 
-        results = await self.directory[model_name].predict.remote(instances)
+        ref: ray.ObjectRef = await self.directory[model_name].predict.remote(instances)
+        results = await ref
         
-        return await results
+        return results
 
 
 gtp_immobilized_model = GTPImmobilized.bind()
