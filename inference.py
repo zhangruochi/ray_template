@@ -62,7 +62,7 @@ class GDPSoluble():
 
 
 
-@serve.deployment(route_prefix="/eme/v1/predict")
+@serve.deployment(route_prefix="/mrs/eme/v1/predict")
 class EmeGraph():
     def __init__(self, 
         gtp_immobilized_model: RayServeDeploymentHandle,
@@ -100,3 +100,8 @@ gtp_soluble_model = GTPSoluble.bind()
 gdp_soluble_model  = GDPSoluble.bind()
 
 model = EmeGraph.bind(gtp_immobilized_model, gdp_immobilized_model, gtp_soluble_model, gdp_soluble_model)
+    
+
+
+
+
