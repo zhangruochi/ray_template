@@ -1,12 +1,12 @@
-from ray import serve
 from fastapi import FastAPI
 from predictor import Predictor
 from omegaconf import OmegaConf
 from starlette.requests import Request
 from typing import Dict
 import os
-from ray.serve.handle import RayServeDeploymentHandle
 import ray
+from ray import serve
+from ray.serve.handle import RayServeDeploymentHandle
 
 app = FastAPI()
 
@@ -91,7 +91,11 @@ class EmeGraph():
         model_name = data["model_name"]
 
         ref: ray.ObjectRef = await self.directory[model_name].predict.remote(instances)
-        results = await ref
+
+        if isinstance(ref, ray.ObjectRef):
+            results = await ref
+        else:
+            results = ref
         
         return results
 
